@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% from "_macros.html" import product_card with context %}
+{% block title %}{{ product.name }} — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header" style="padding:34px 0;">
+  <div class="container">
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a> / <a href="{{ url_for('shop') }}">Shop</a> / {{ product.name }}</div>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container">
+    <div class="product-detail-grid">
+      <div>
+        <div class="pd-gallery-main" id="pdMainImage">
+          {% if product.image %}
+            <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}" style="width:100%;height:100%;object-fit:cover;" id="pdMainImg">
+          {% else %}
+            <div class="ph" style="height:100%;">{{ product.name }}</div>
+          {% endif %}
+        </div>
+        {% if product.gallery_list() %}
+        <div class="pd-gallery-thumbs">
+          <div class="thumb active" onclick="document.getElementById('pdMainImg').src=this.querySelector('img').src; document.querySelectorAll('.pd-gallery-thumbs .thumb').forEach(t=>t.classList.remove('active')); this.classList.add('active');">
+            <img src="{{ url_for('static', filename='uploads/products/' ~ product.image) }}" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          {% for g in product.gallery_list() %}
+          <div class="thumb" onclick="document.getElementById('pdMainImg').src=this.querySelector('img').src; document.querySelectorAll('.pd-gallery-thumbs .thumb').forEach(t=>t.classList.remove('active')); this.classList.add('active');">
+            <img src="{{ url_for('static', filename='uploads/products/' ~ g) }}" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <div class="pd-cat">{{ product.category }}</div>
+        <h1 class="pd-title">{{ product.name }}</h1>
+        <div class="pd-price">MWK {{ "{:,.0f}".format(product.price_mwk) }} <span class="usd">≈ ${{ "%.2f"|format(product.price_usd(USD_RATE)) }} USD</span></div>
+        {% if product.reviews %}<div class="product-rating">★ {{ product.avg_rating() }} · {{ product.reviews|length }} review{{ 's' if product.reviews|length != 1 }}</div>{% endif %}
+        <p class="pd-desc">{{ product.description }}</p>
+
+        <form id="pdForm">
+          {% if product.sizes_list() %}
+          <div class="pd-row">
+            <label>Size</label>
+            <div class="size-options">
+              {% for s in product.sizes_list() %}
+              <label class="size-opt"><input type="radio" name="size" value="{{ s }}" {{ 'checked' if loop.first }}>{{ s }}</label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          {% if product.colors_list() %}
+          <div class="pd-row">
+            <label>Color</label>
+            <div class="color-options">
+              {% for c in product.colors_list() %}
+              <label class="color-opt"><input type="radio" name="color" value="{{ c }}" {{ 'checked' if loop.first }}>{{ c }}</label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </form>
+
+        <div class="pd-actions">
+          <button class="btn btn-dark" id="pdAddCart">Add to Bag</button>
+          <button class="btn btn-primary" id="pdBuyNow">Buy Now</button>
+        </div>
+        <div class="pd-secondary-links">
+          <a href="{{ url_for('custom_design') }}">Request customization for this piece</a>
+          <a href="{{ url_for('book_consultation') }}">Book a fitting</a>
+        </div>
+
+        <div class="pd-meta-list">
+          <div><span>Material</span><span>{{ product.material or "—" }}</span></div>
+          <div><span>Production Time</span><span>{{ product.production_time }}</span></div>
+          <div><span>Delivery Estimate</span><span>{{ product.delivery_estimate }}</span></div>
+          <div><span>Availability</span><span>{{ "In stock" if product.stock > 0 else "Made to order" }}</span></div>
+        </div>
+
+        <div class="admin-card" style="margin-top:30px;">
+          <b style="font-size:13px;">Not sure of your size?</b>
+          <div class="form-grid" style="margin-top:14px;">
+            <div class="field"><label>Height (cm)</label><input type="number" id="sizeHeight" placeholder="165"></div>
+            <div class="field"><label>Weight (kg)</label><input type="number" id="sizeWeight" placeholder="60"></div>
+            <div class="field full"><label>Body Type</label>
+              <select id="sizeBodyType"><option value="slim">Slim</option><option value="average" selected>Average</option><option value="athletic">Athletic</option></select>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline on-light" id="sizeCheckBtn">Get Size Recommendation</button>
+          <p id="sizeResult" class="field-hint" style="margin-top:12px;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="bg-beige">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">You May Also Like</span><h2 class="section-title">More in {{ product.category }}</h2></div>
+    <div class="product-grid">{% for p in related %}{{ product_card(p) }}{% endfor %}</div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const PRODUCT = {
+  id: {{ product.id }},
+  name: {{ product.name|tojson }},
+  price_mwk: {{ product.price_mwk }},
+  image_url: {{ (url_for('static', filename='uploads/products/' ~ product.image) if product.image else '')|tojson }},
+};
+function currentSelection() {
+  const size = document.querySelector('#pdForm input[name="size"]:checked')?.value || "";
+  const color = document.querySelector('#pdForm input[name="color"]:checked')?.value || "";
+  return { id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.price_mwk, image: PRODUCT.image_url, size, color, qty: 1 };
+}
+document.getElementById('pdAddCart').addEventListener('click', () => addToCart(currentSelection()));
+document.getElementById('pdBuyNow').addEventListener('click', () => { addToCart(currentSelection()); window.location.href = "{{ url_for('checkout') }}"; });
+
+document.getElementById('sizeCheckBtn').addEventListener('click', () => {
+  const height_cm = document.getElementById('sizeHeight').value;
+  const weight_kg = document.getElementById('sizeWeight').value;
+  const body_type = document.getElementById('sizeBodyType').value;
+  const resultEl = document.getElementById('sizeResult');
+  if (!height_cm || !weight_kg) { resultEl.textContent = "Please enter both height and weight."; return; }
+  resultEl.textContent = "Calculating...";
+  fetch('/api/size-recommendation', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ height_cm, weight_kg, body_type }),
+  }).then(r => r.json()).then(data => {
+    resultEl.textContent = data.recommended_size
+      ? `Recommended size: ${data.recommended_size}. ${data.note}`
+      : (data.error || "Could not calculate.");
+  });
+});
+</script>
+{% endblock %}

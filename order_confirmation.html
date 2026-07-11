@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<section class="tight">
+  <div class="container" style="max-width:680px;">
+    <div style="text-align:center;margin-bottom:36px;">
+      <span class="eyebrow" style="justify-content:center;">Thank You</span>
+      <h1 class="section-title">Order Received</h1>
+      <p class="section-sub" style="margin:0 auto;">Your order reference is <b>{{ order.order_ref }}</b>. Save this to track your order anytime.</p>
+    </div>
+
+    <div class="admin-card" style="margin-bottom:24px;">
+      <h3 style="font-family:var(--font-display);font-size:16px;margin-bottom:14px;">Order Summary</h3>
+      {% for item in order.items() %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-line-dark);font-size:13.5px;">
+        <span>{{ item.name }} {% if item.size %}({{ item.size }}{% if item.color %}, {{ item.color }}{% endif %}){% endif %} × {{ item.qty }}</span>
+        <span>MWK {{ "{:,.0f}".format(item.price * item.qty) }}</span>
+      </div>
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px;color:#666;">
+        <span>Delivery</span><span>MWK {{ "{:,.0f}".format(order.delivery_fee_mwk) }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-weight:700;">
+        <span>Total</span><span>MWK {{ "{:,.0f}".format(order.total_mwk) }}</span>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:var(--font-display);font-size:16px;margin-bottom:14px;">Payment Instructions</h3>
+      {% if order.payment_method == 'airtel_money' %}
+        <p>Send MWK {{ "{:,.0f}".format(order.total_mwk) }} to Airtel Money number <b>{{ payment_info.airtel_money }}</b>, using <b>{{ order.order_ref }}</b> as reference.</p>
+      {% elif order.payment_method == 'tnm_mpamba' %}
+        <p>Send MWK {{ "{:,.0f}".format(order.total_mwk) }} to TNM Mpamba number <b>{{ payment_info.tnm_mpamba }}</b>, using <b>{{ order.order_ref }}</b> as reference.</p>
+      {% elif order.payment_method == 'bank_transfer' %}
+        <p>Transfer to: <b>{{ payment_info.bank_transfer }}</b><br>Use <b>{{ order.order_ref }}</b> as the transfer description.</p>
+      {% elif order.payment_method == 'binance_pay' %}
+        <p>Send via Binance Pay ID: <b>{{ payment_info.binance_pay }}</b></p>
+      {% elif order.payment_method == 'usdt' %}
+        <p>Send USDT (TRC20) to: <b style="word-break:break-all;">{{ payment_info.usdt }}</b></p>
+      {% else %}
+        <p>Our team will contact you on WhatsApp with a secure payment link shortly.</p>
+      {% endif %}
+      <p class="field-hint" style="margin-top:14px;">Already sent a screenshot? You can also confirm your payment directly on <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Hi%2C%20confirming%20payment%20for%20order%20{{ order.order_ref }}" style="text-decoration:underline;">WhatsApp</a>.</p>
+    </div>
+
+    <div class="hero-cta" style="justify-content:center;margin-top:30px;">
+      <a href="{{ url_for('track_order') }}" class="btn btn-dark">Track This Order</a>
+      <a href="{{ url_for('shop') }}" class="btn btn-outline on-light">Continue Shopping</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block extra_scripts %}
+<script>localStorage.removeItem("nashe_cart_v1");</script>
+{% endblock %}

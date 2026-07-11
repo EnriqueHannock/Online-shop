@@ -1,0 +1,31 @@
+{% macro product_card(p) %}
+<div class="product-card fade-in">
+  <div class="product-media">
+    {% if p.image %}
+      <img src="{{ url_for('static', filename='uploads/products/' ~ p.image) }}" alt="{{ p.name }}">
+    {% else %}
+      <div class="ph">{{ p.name }}</div>
+    {% endif %}
+    {% if p.trending %}<span class="product-badge">Trending</span>{% endif %}
+    <div class="product-quick">
+      <button aria-label="Quick view" onclick="window.location.href='{{ url_for('product_detail', product_id=p.id) }}'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button aria-label="Wishlist">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="product-info">
+    <div class="product-cat">{{ p.category }}</div>
+    <div class="product-name"><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.name }}</a></div>
+    <div class="product-price">MWK {{ "{:,.0f}".format(p.price_mwk) }} <span class="usd">${{ "%.2f"|format(p.price_usd(USD_RATE)) }}</span></div>
+    {% if p.reviews|length > 0 %}
+    <div class="product-rating">★ {{ p.avg_rating() }} ({{ p.reviews|length }})</div>
+    {% endif %}
+    <button class="add-cart-btn" data-product='{"id":{{ p.id }},"name":{{ p.name|tojson }},"price_mwk":{{ p.price_mwk }},"image_url":{{ (url_for('static', filename='uploads/products/' ~ p.image) if p.image else '')|tojson }},"sizes":{{ p.sizes_list()|tojson }},"colors":{{ p.colors_list()|tojson }}}'>
+      Add to Bag
+    </button>
+  </div>
+</div>
+{% endmacro %}

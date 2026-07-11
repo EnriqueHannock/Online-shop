@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}About — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow">Our Story</span>
+    <h1>About Nashe Designs</h1>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container" style="max-width:760px;">
+    <p class="section-sub" style="font-size:16px;margin-bottom:20px;">
+      Nashe Designs is a modern fashion and tailoring house based in Malawi, crafting custom-made and
+      ready-made clothing for customers locally and internationally. From wedding gowns and corporate
+      uniforms to traditional wear and everyday essentials — every piece is made with the same premium
+      attention to detail.
+    </p>
+    <p class="section-sub" style="font-size:16px;margin-bottom:20px;">
+      Our goal is simple: to become Malawi's leading online tailoring and fashion platform, combining a
+      simple, fast shopping experience with a genuinely premium fashion identity — proudly African,
+      globally minded.
+    </p>
+    <div class="hero-cta" style="margin-top:30px;">
+      <a href="{{ url_for('shop') }}" class="btn btn-dark">Shop the Collection</a>
+      <a href="{{ url_for('custom_design') }}" class="btn btn-outline on-light">Start a Custom Order</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

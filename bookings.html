@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar"><h1>Booking Requests</h1></div>
+
+<table class="admin-table">
+  <thead><tr><th>Name</th><th>Contact</th><th>Type</th><th>Date</th><th>Time</th><th>Notes</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for b in bookings %}
+    <tr>
+      <td>{{ b.name }}</td>
+      <td>{{ b.phone }}</td>
+      <td>{{ b.booking_type }}</td>
+      <td>{{ b.preferred_date }}</td>
+      <td>{{ b.preferred_time }}</td>
+      <td style="max-width:200px;">{{ b.notes[:60] }}{% if b.notes|length > 60 %}...{% endif %}</td>
+      <td>
+        <form method="POST" action="{{ url_for('admin_booking_status', booking_id=b.id) }}">
+          <select name="status" class="status-select" onchange="this.form.submit()">
+            {% for s in ["Pending","Approved","Rejected","Completed"] %}
+            <option value="{{ s }}" {{ 'selected' if b.status==s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    {% if not bookings %}
+    <tr><td colspan="7" style="text-align:center;color:#888;">No bookings yet.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — {{ STORE_NAME }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="login-shell">
+  <div class="login-card">
+    <div style="text-align:center;margin-bottom:26px;">
+      <span class="logo-mark" style="margin:0 auto 14px;color:var(--black);border-color:var(--gold);">ND</span>
+      <h2 style="font-family:var(--font-display);">Nashe Designs Admin</h2>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category=='success' else 'error' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST">
+      <div class="field"><label>Username</label><input type="text" name="username" required autofocus></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required></div>
+      <button type="submit" class="btn btn-dark btn-block">Log In</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

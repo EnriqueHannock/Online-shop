@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% from "_macros.html" import product_card with context %}
+{% block content %}
+
+<section class="hero">
+  <span class="hero-monogram">ND</span>
+  <div class="container hero-inner">
+    <span class="eyebrow hero-eyebrow">Malawi's Premium Fashion House</span>
+    <h1 class="hero-title">Tailored for the<br><em>life you're building.</em></h1>
+    <p class="hero-sub">Custom tailoring, corporate uniforms, wedding wear, and ready-made fashion — designed in Malawi, made for the world.</p>
+    <div class="hero-cta">
+      <a href="{{ url_for('shop') }}" class="btn btn-primary">Shop Now</a>
+      <a href="{{ url_for('custom_design') }}" class="btn btn-outline">Request Custom Design</a>
+      <a href="{{ url_for('book_consultation') }}" class="btn btn-outline">Book Demo</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span class="line"></span>Scroll</div>
+</section>
+
+<section class="tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Shop by Category</span>
+      <h2 class="section-title">Featured Categories</h2>
+    </div>
+  </div>
+  <div class="cat-grid">
+    {% set cats = [
+      ("Women's Wear", "#3b3226"), ("Men's Wear", "#2a2a2a"), ("Wedding Wear", "#4a3f2c"),
+      ("Corporate Wear", "#232323"), ("Traditional Wear", "#463a22"), ("Dresses", "#302a20"),
+      ("Hoodies", "#1f1f1f"), ("Custom Orders", "#33291a")
+    ] %}
+    {% for name, color in cats %}
+    <a href="{{ url_for('shop', category=name) }}" class="cat-card">
+      <div class="cat-bg" style="background:linear-gradient(160deg, {{ color }}, #0B0B0B);"></div>
+      <span>{{ name }}<small>Explore Collection</small></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <span class="eyebrow">Right Now</span>
+        <h2 class="section-title">Trending Pieces</h2>
+      </div>
+      <a href="{{ url_for('shop', sort='trending') }}" class="btn btn-ghost">View All</a>
+    </div>
+    <div class="product-grid">
+      {% for p in trending %}{{ product_card(p) }}{% endfor %}
+      {% if not trending %}
+        <p style="grid-column:1/-1;color:#888;">No trending products yet — add some from the admin panel.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if featured %}
+<section class="bg-beige">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Handpicked</span>
+      <h2 class="section-title">Featured Pieces</h2>
+    </div>
+    <div class="product-grid">
+      {% for p in featured %}{{ product_card(p) }}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="bg-black">
+  <div class="container">
+    <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <span class="eyebrow">Fashion Inspiration</span>
+        <h2 class="section-title">From the Nashe Feed</h2>
+      </div>
+      <a href="{{ url_for('inspiration') }}" class="btn btn-outline">View Full Feed</a>
+    </div>
+    <div class="masonry">
+      {% for post in posts %}
+      <div class="masonry-item">
+        {% if post.pinned %}<span class="masonry-pin">Featured</span>{% endif %}
+        {% if post.media_type == 'video' %}
+          <video src="{{ url_for('static', filename='uploads/posts/' ~ post.media) }}" muted loop autoplay playsinline></video>
+        {% else %}
+          <img src="{{ url_for('static', filename='uploads/posts/' ~ post.media) }}" alt="{{ post.caption }}">
+        {% endif %}
+        <div class="masonry-caption">
+          <p>{{ post.caption }}</p>
+          <span class="masonry-tags">{{ post.hashtags }}</span>
+        </div>
+      </div>
+      {% endfor %}
+      {% if not posts %}
+        <p style="color:rgba(255,255,255,0.5);">No inspiration posts yet — publish your first look from the admin panel.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if reviews %}
+<section>
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow" style="justify-content:center;">Client Love</span>
+      <h2 class="section-title">What Our Customers Say</h2>
+    </div>
+    <div class="testimonial-grid">
+      {% for r in reviews %}
+      <div class="testimonial-card">
+        <div class="stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</div>
+        <p class="testimonial-quote">"{{ r.comment }}"</p>
+        <div class="testimonial-who">
+          <span class="avatar"></span>
+          <span>{{ r.customer_name }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="bg-beige tight">
+  <div class="container" style="text-align:center;">
+    <span class="eyebrow" style="justify-content:center;">Talk To Us</span>
+    <h2 class="section-title">Have a fashion idea in mind?</h2>
+    <p class="section-sub" style="margin:0 auto 28px;">From wedding gowns to corporate uniforms — our design team brings your vision to life.</p>
+    <div class="hero-cta" style="justify-content:center;">
+      <a href="{{ url_for('custom_design') }}" class="btn btn-dark">Request Custom Design</a>
+      <a href="https://wa.me/{{ WHATSAPP_NUMBER }}" class="btn btn-outline on-light">Chat on WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Checkout — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header" style="padding:40px 0;">
+  <div class="container">
+    <span class="eyebrow">One-Page Checkout</span>
+    <h1>Checkout</h1>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container" style="max-width:760px;">
+    <div id="checkoutEmptyNotice" style="display:none;" class="alert alert-error">
+      Your bag is empty. <a href="{{ url_for('shop') }}" style="text-decoration:underline;">Go shopping</a> before checking out.
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="checkoutForm">
+      <input type="hidden" name="cart_items" id="cartItemsField">
+
+      <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:16px;">Your Order</h3>
+      <div id="checkoutSummary" style="margin-bottom:30px;"></div>
+      <div class="hairline-solid" style="margin-bottom:30px;"></div>
+
+      <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:16px;">Delivery Details</h3>
+      <p class="field-hint" style="margin-bottom:18px;">No account needed — checkout as a guest. Create an account later to save these details.</p>
+      <div class="form-grid">
+        <div class="field"><label>Full Name</label><input type="text" name="name" required></div>
+        <div class="field"><label>Phone Number</label><input type="tel" name="phone" required placeholder="+265..."></div>
+        <div class="field"><label>Email (optional)</label><input type="email" name="email"></div>
+        <div class="field"><label>City / Town</label><input type="text" name="city" required></div>
+        <div class="field full"><label>Delivery Address</label><input type="text" name="address" required></div>
+        <div class="field"><label>Country</label>
+          <select name="country" id="countrySelect">
+            <option value="Malawi" selected>Malawi</option>
+            <option value="International">International</option>
+          </select>
+        </div>
+      </div>
+      <p class="field-hint" id="deliveryFeeNote">Local delivery within Malawi via AXA, Swift, DHL Malawi, or motorcycle courier.</p>
+
+      <div class="hairline-solid" style="margin:30px 0;"></div>
+      <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:16px;">Payment Method</h3>
+      <div class="pay-methods">
+        {% for pm in payment_methods %}
+        <label class="pay-option" data-method="{{ pm.id }}">
+          <input type="radio" name="payment_method" value="{{ pm.id }}" {{ 'checked' if loop.first }} onchange="showPaymentInstructions('{{ pm.id }}')">
+          <div class="pm-label">{{ pm.label }}</div>
+          <div class="pm-group">{{ pm.group }}</div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div id="paymentInstructions" class="admin-card" style="margin-bottom:20px;"></div>
+
+      <div class="field">
+        <label>Upload Payment Proof (screenshot / receipt)</label>
+        <input type="file" name="payment_proof" accept="image/*">
+        <p class="field-hint">Optional at this step — you can also send proof via WhatsApp after ordering.</p>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px;">Confirm Order</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const PAYMENT_INFO = {
+  airtel_money: "Send payment to Airtel Money: <b>{{ payment_info.airtel_money }}</b>. Use your name as reference, then upload your screenshot below.",
+  tnm_mpamba: "Send payment to TNM Mpamba: <b>{{ payment_info.tnm_mpamba }}</b>. Use your name as reference, then upload your screenshot below.",
+  bank_transfer: "Bank transfer details will be shown on your order confirmation page. Use your Order Reference as the transfer description.",
+  visa_mastercard: "You'll be able to pay securely by card once card processing is connected — for now, our team will follow up with a secure payment link on WhatsApp.",
+  paypal: "You'll receive a PayPal payment request from our team shortly after ordering.",
+  binance_pay: "Binance Pay ID and QR code will appear on your order confirmation page.",
+  usdt: "USDT wallet address (TRC20) will appear on your order confirmation page.",
+};
+function showPaymentInstructions(method) {
+  document.querySelectorAll('.pay-option').forEach(el => el.classList.toggle('selected', el.dataset.method === method));
+  document.getElementById('paymentInstructions').innerHTML = `<p style="font-size:13px;">${PAYMENT_INFO[method] || ''}</p>`;
+}
+
+function renderCheckoutSummary() {
+  const cart = getCart();
+  const summary = document.getElementById('checkoutSummary');
+  if (!cart.length) {
+    document.getElementById('checkoutEmptyNotice').style.display = 'block';
+    document.getElementById('checkoutForm').style.display = 'none';
+    return;
+  }
+  summary.innerHTML = cart.map(i => `
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-line-dark);font-size:13.5px;">
+      <span>${i.name} ${i.size ? '(' + i.size + (i.color ? ', ' + i.color : '') + ')' : ''} × ${i.qty}</span>
+      <span>${money(i.price * i.qty)}</span>
+    </div>
+  `).join('') + `<div style="display:flex;justify-content:space-between;padding:14px 0 0;font-weight:700;">
+      <span>Subtotal</span><span>${money(cartTotal())}</span>
+    </div>`;
+  document.getElementById('cartItemsField').value = JSON.stringify(cart);
+}
+
+document.getElementById('countrySelect').addEventListener('change', (e) => {
+  document.getElementById('deliveryFeeNote').textContent = e.target.value === 'Malawi'
+    ? "Local delivery within Malawi via AXA, Swift, DHL Malawi, or motorcycle courier."
+    : "International delivery via DHL, FedEx, or EMS — a flat delivery fee of MWK 25,000 applies.";
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderCheckoutSummary();
+  showPaymentInstructions(document.querySelector('input[name="payment_method"]:checked')?.value || 'airtel_money');
+  document.getElementById('checkoutForm')?.addEventListener('submit', () => {
+    document.getElementById('cartItemsField').value = JSON.stringify(getCart());
+  });
+});
+</script>
+{% endblock %}

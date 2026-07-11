@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Fashion Inspiration — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow">The Nashe Feed</span>
+    <h1>Fashion Inspiration</h1>
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a> / Inspiration</div>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="masonry">
+      {% for post in posts %}
+      <div class="masonry-item fade-in">
+        {% if post.pinned %}<span class="masonry-pin">Featured</span>{% endif %}
+        {% if post.media_type == 'video' %}
+          <video src="{{ url_for('static', filename='uploads/posts/' ~ post.media) }}" muted loop autoplay playsinline></video>
+        {% else %}
+          <img src="{{ url_for('static', filename='uploads/posts/' ~ post.media) }}" alt="{{ post.caption }}">
+        {% endif %}
+        <div class="masonry-caption">
+          <p>{{ post.caption }}</p>
+          <span class="masonry-tags">{{ post.hashtags }}</span>
+          {% if post.linked_product %}
+            <div style="margin-top:8px;"><a href="{{ url_for('product_detail', product_id=post.linked_product.id) }}" style="font-size:12px;text-decoration:underline;">Shop this look →</a></div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if not posts %}
+    <p style="color:#888;text-align:center;padding:60px 0;">No inspiration posts yet. Check back soon for new looks from Nashe Designs.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

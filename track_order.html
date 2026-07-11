@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Track Your Order — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header" style="padding:40px 0;">
+  <div class="container">
+    <span class="eyebrow">Where's My Order</span>
+    <h1>Track Order</h1>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container" style="max-width:560px;">
+    <form method="POST">
+      <div class="field">
+        <label>Order Reference or Phone Number</label>
+        <input type="text" name="ref_or_phone" placeholder="ND-XXXXXXX or +265..." required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Track Order</button>
+    </form>
+
+    {% if searched %}
+      {% if order %}
+      <div class="track-result">
+        <b style="font-family:var(--font-display);font-size:17px;">Order {{ order.order_ref }}</b>
+        <p class="field-hint" style="margin:6px 0 20px;">Placed {{ order.created_at.strftime('%d %b %Y') }} · MWK {{ "{:,.0f}".format(order.total_mwk) }}</p>
+        {% set steps = ["Pending Payment", "Payment Confirmed", "In Production", "Shipped", "Delivered"] %}
+        {% set current_idx = steps.index(order.status) if order.status in steps else -1 %}
+        <div class="status-timeline">
+          {% for s in steps %}
+          <div class="step {{ 'done' if loop.index0 <= current_idx }}">
+            <div class="dot"></div>
+            <span>{{ s }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% if order.status == 'Cancelled' %}
+        <p class="alert alert-error" style="margin-top:20px;">This order was cancelled.</p>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="alert alert-error" style="margin-top:24px;">No order found with that reference or phone number.</div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

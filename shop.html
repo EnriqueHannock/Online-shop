@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import product_card with context %}
+{% block title %}Shop — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow">The Collection</span>
+    <h1>{{ active_category or "Shop All" }}</h1>
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a> / Shop{% if active_category %} / {{ active_category }}{% endif %}</div>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container">
+    <div class="filter-bar">
+      <div class="filter-chips">
+        <a href="{{ url_for('shop') }}" class="filter-chip {{ 'active' if not active_category }}">All</a>
+        {% for c in CATEGORIES %}
+        <a href="{{ url_for('shop', category=c) }}" class="filter-chip {{ 'active' if active_category==c }}">{{ c }}</a>
+        {% endfor %}
+      </div>
+      <form method="get" action="{{ url_for('shop') }}" style="display:flex;gap:10px;">
+        {% if active_category %}<input type="hidden" name="category" value="{{ active_category }}">{% endif %}
+        <input type="text" name="q" value="{{ q }}" placeholder="Search..." style="border:1px solid var(--gray-line-dark);border-radius:20px;padding:9px 16px;font-size:12.5px;">
+        <select name="sort" class="sort-select" onchange="this.form.submit()">
+          <option value="newest" {{ 'selected' if sort=='newest' }}>Newest</option>
+          <option value="trending" {{ 'selected' if sort=='trending' }}>Trending</option>
+          <option value="price_low" {{ 'selected' if sort=='price_low' }}>Price: Low to High</option>
+          <option value="price_high" {{ 'selected' if sort=='price_high' }}>Price: High to Low</option>
+        </select>
+      </form>
+    </div>
+
+    <div class="product-grid">
+      {% for p in products %}{{ product_card(p) }}{% endfor %}
+    </div>
+    {% if not products %}
+      <p style="color:#888;padding:40px 0;text-align:center;">No products found{{ ' in "' + active_category + '"' if active_category }}. Try another category or check back soon.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

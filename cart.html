@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Your Bag — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header" style="padding:40px 0;">
+  <div class="container">
+    <span class="eyebrow">Review</span>
+    <h1>Your Bag</h1>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container" style="max-width:720px;">
+    <div id="pageCartItems"></div>
+    <div class="hairline-solid" style="margin:20px 0;"></div>
+    <div class="cart-subtotal-row" style="font-size:18px;">
+      <span>Subtotal</span><span id="pageCartSubtotal">MWK 0</span>
+    </div>
+    <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-block" style="margin-top:20px;">Proceed to Checkout</a>
+    <a href="{{ url_for('shop') }}" class="btn btn-outline on-light btn-block" style="margin-top:12px;">Continue Shopping</a>
+  </div>
+</section>
+
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function renderPageCart() {
+  const cart = getCart();
+  const container = document.getElementById('pageCartItems');
+  document.getElementById('pageCartSubtotal').textContent = money(cartTotal());
+  if (!cart.length) { container.innerHTML = '<div class="cart-empty">Your bag is empty.</div>'; return; }
+  container.innerHTML = cart.map((item, idx) => `
+    <div class="cart-line">
+      <div class="cart-line-thumb">${item.image ? `<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;">` : ""}</div>
+      <div class="cart-line-info">
+        <div class="name">${item.name}</div>
+        <div class="meta">${item.size ? "Size " + item.size : ""}${item.color ? " · " + item.color : ""}</div>
+        <div class="qty-control">
+          <button onclick="updateQty(${idx},-1); renderPageCart();">−</button>
+          <span>${item.qty}</span>
+          <button onclick="updateQty(${idx},1); renderPageCart();">+</button>
+        </div>
+        <span class="cart-line-remove" onclick="removeFromCart(${idx}); renderPageCart();">Remove</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;">${money(item.price * item.qty)}</div>
+    </div>
+  `).join("");
+}
+document.addEventListener('DOMContentLoaded', renderPageCart);
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar"><h1>Custom Design Requests</h1></div>
+
+<table class="admin-table">
+  <thead><tr><th>Name</th><th>Contact</th><th>Event</th><th>Design</th><th>Budget</th><th>Deadline</th><th>Image</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for r in requests %}
+    <tr>
+      <td>{{ r.name }}</td>
+      <td>{{ r.phone }}{% if r.email %}<br><span style="color:#888;font-size:11.5px;">{{ r.email }}</span>{% endif %}</td>
+      <td>{{ r.event_type }}</td>
+      <td style="max-width:220px;">{{ r.preferred_design[:80] }}{% if r.preferred_design|length > 80 %}...{% endif %}</td>
+      <td>{{ r.budget_range }}</td>
+      <td>{{ r.deadline }}</td>
+      <td>{% if r.inspiration_image %}<a href="{{ url_for('static', filename='uploads/posts/' ~ r.inspiration_image) }}" target="_blank" style="text-decoration:underline;">View</a>{% else %}—{% endif %}</td>
+      <td>
+        <form method="POST" action="{{ url_for('admin_custom_request_status', req_id=r.id) }}">
+          <select name="status" class="status-select" onchange="this.form.submit()">
+            {% for s in ["New","Reviewed","Quoted","In Production","Completed"] %}
+            <option value="{{ s }}" {{ 'selected' if r.status==s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    {% if not requests %}
+    <tr><td colspan="8" style="text-align:center;color:#888;">No custom design requests yet.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

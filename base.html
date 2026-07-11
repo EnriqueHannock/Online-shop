@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin — {{ STORE_NAME }}{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="logo"><span class="logo-mark">ND</span><span class="logo-text"><b>Nashe Admin</b><span>Control Panel</span></span></div>
+    <nav class="admin-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint=='admin_dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('admin_products') }}" class="{{ 'active' if request.endpoint in ['admin_products','admin_product_new','admin_product_edit'] }}">Products</a>
+      <a href="{{ url_for('admin_orders') }}" class="{{ 'active' if request.endpoint=='admin_orders' }}">Orders</a>
+      <a href="{{ url_for('admin_custom_requests') }}" class="{{ 'active' if request.endpoint=='admin_custom_requests' }}">Custom Requests</a>
+      <a href="{{ url_for('admin_bookings') }}" class="{{ 'active' if request.endpoint=='admin_bookings' }}">Bookings</a>
+      <a href="{{ url_for('admin_posts') }}" class="{{ 'active' if request.endpoint=='admin_posts' }}">Inspiration Feed</a>
+      <a href="{{ url_for('admin_reviews') }}" class="{{ 'active' if request.endpoint=='admin_reviews' }}">Reviews</a>
+      <a href="{{ url_for('home') }}" target="_blank">View Storefront ↗</a>
+      <a href="{{ url_for('admin_logout') }}">Log Out</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category=='success' else 'error' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

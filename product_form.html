@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar">
+  <h1>{{ "Edit Product" if product else "Add Product" }}</h1>
+  <a href="{{ url_for('admin_products') }}" style="text-decoration:underline;font-size:13px;">← Back to Products</a>
+</div>
+
+<div class="admin-card">
+<form method="POST" enctype="multipart/form-data">
+  <div class="form-grid">
+    <div class="field"><label>Product Name</label><input type="text" name="name" value="{{ product.name if product else '' }}" required></div>
+    <div class="field"><label>Category</label>
+      <select name="category" required>
+        {% for c in categories %}<option value="{{ c }}" {{ 'selected' if product and product.category==c }}>{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field full"><label>Description</label><textarea name="description">{{ product.description if product else '' }}</textarea></div>
+    <div class="field"><label>Material</label><input type="text" name="material" value="{{ product.material if product else '' }}"></div>
+    <div class="field"><label>Price (MWK)</label><input type="number" step="1" name="price_mwk" value="{{ product.price_mwk if product else '' }}" required></div>
+    <div class="field"><label>Sizes (comma separated)</label><input type="text" name="sizes" value="{{ product.sizes if product else 'S,M,L,XL' }}"></div>
+    <div class="field"><label>Colors (comma separated)</label><input type="text" name="colors" value="{{ product.colors if product else '' }}"></div>
+    <div class="field"><label>Production Time</label><input type="text" name="production_time" value="{{ product.production_time if product else '5-7 days' }}"></div>
+    <div class="field"><label>Delivery Estimate</label><input type="text" name="delivery_estimate" value="{{ product.delivery_estimate if product else '2-4 days' }}"></div>
+    <div class="field"><label>Stock</label><input type="number" name="stock" value="{{ product.stock if product else 10 }}"></div>
+    <div class="field" style="display:flex;align-items:center;gap:20px;padding-top:28px;">
+      <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;"><input type="checkbox" name="trending" style="width:auto;" {{ 'checked' if product and product.trending }}> Trending</label>
+      <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;"><input type="checkbox" name="featured" style="width:auto;" {{ 'checked' if product and product.featured }}> Featured</label>
+    </div>
+    <div class="field full">
+      <label>Main Image</label>
+      <input type="file" name="image" accept="image/*">
+      {% if product and product.image %}<p class="field-hint">Current: {{ product.image }} (upload a new file to replace)</p>{% endif %}
+    </div>
+    <div class="field full">
+      <label>Gallery Images (select multiple)</label>
+      <input type="file" name="gallery" accept="image/*" multiple>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-dark">{{ "Save Changes" if product else "Add Product" }}</button>
+</form>
+</div>
+{% endblock %}

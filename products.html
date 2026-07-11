@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar">
+  <h1>Products</h1>
+  <a href="{{ url_for('admin_product_new') }}" class="btn btn-dark">+ Add Product</a>
+</div>
+
+<table class="admin-table">
+  <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Flags</th><th></th></tr></thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td><div style="width:40px;height:48px;background:var(--beige);border-radius:2px;overflow:hidden;">{% if p.image %}<img src="{{ url_for('static', filename='uploads/products/' ~ p.image) }}" style="width:100%;height:100%;object-fit:cover;">{% endif %}</div></td>
+      <td>{{ p.name }}</td>
+      <td>{{ p.category }}</td>
+      <td>MWK {{ "{:,.0f}".format(p.price_mwk) }}</td>
+      <td>{{ p.stock }}</td>
+      <td>{% if p.trending %}<span class="badge badge-confirmed">Trending</span>{% endif %} {% if p.featured %}<span class="badge badge-shipped">Featured</span>{% endif %}</td>
+      <td style="white-space:nowrap;">
+        <a href="{{ url_for('admin_product_edit', product_id=p.id) }}" style="text-decoration:underline;font-size:12.5px;">Edit</a>
+        &nbsp;
+        <form method="POST" action="{{ url_for('admin_product_delete', product_id=p.id) }}" style="display:inline;" onsubmit="return confirm('Delete this product?');">
+          <button type="submit" style="color:#a12727;text-decoration:underline;font-size:12.5px;">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    {% if not products %}
+    <tr><td colspan="7" style="text-align:center;color:#888;">No products yet. <a href="{{ url_for('admin_product_new') }}" style="text-decoration:underline;">Add your first product</a>.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

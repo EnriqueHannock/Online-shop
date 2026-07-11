@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar"><h1>Reviews</h1></div>
+<p class="field-hint" style="margin-bottom:20px;">Reviews are submitted from order follow-ups (integrate a review-request link in your post-delivery WhatsApp message). Approve reviews here before they appear on the storefront.</p>
+
+<table class="admin-table">
+  <thead><tr><th>Customer</th><th>Product</th><th>Rating</th><th>Comment</th><th>Approved</th><th></th></tr></thead>
+  <tbody>
+    {% for r in reviews %}
+    <tr>
+      <td>{{ r.customer_name }}</td>
+      <td>{{ r.product.name if r.product else '—' }}</td>
+      <td>{{ '★' * r.rating }}</td>
+      <td style="max-width:260px;">{{ r.comment }}</td>
+      <td>{% if r.approved %}<span class="badge badge-confirmed">Approved</span>{% else %}<span class="badge badge-pending">Pending</span>{% endif %}</td>
+      <td style="white-space:nowrap;">
+        <form method="POST" action="{{ url_for('admin_review_toggle', review_id=r.id) }}" style="display:inline;">
+          <button type="submit" style="text-decoration:underline;font-size:12.5px;">{{ 'Unapprove' if r.approved else 'Approve' }}</button>
+        </form>
+        &nbsp;
+        <form method="POST" action="{{ url_for('admin_review_delete', review_id=r.id) }}" style="display:inline;" onsubmit="return confirm('Delete this review?');">
+          <button type="submit" style="color:#a12727;text-decoration:underline;font-size:12.5px;">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    {% if not reviews %}
+    <tr><td colspan="6" style="text-align:center;color:#888;">No reviews yet.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

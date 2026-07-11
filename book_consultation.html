@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Book a Consultation — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow">Let's Talk Fashion</span>
+    <h1>Book a Consultation</h1>
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a> / Book Consultation</div>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container" style="max-width:640px;">
+    <form method="POST">
+      <div class="form-grid">
+        <div class="field"><label>Full Name</label><input type="text" name="name" required></div>
+        <div class="field"><label>Phone Number</label><input type="tel" name="phone" required></div>
+        <div class="field full"><label>Email</label><input type="email" name="email"></div>
+        <div class="field"><label>Consultation Type</label>
+          <select name="booking_type">
+            <option>WhatsApp Consultation</option>
+            <option>Zoom Meeting</option>
+            <option>Physical Appointment</option>
+            <option>Phone Consultation</option>
+          </select>
+        </div>
+        <div class="field"><label>Preferred Date</label><input type="date" name="preferred_date"></div>
+        <div class="field full"><label>Preferred Time</label><input type="time" name="preferred_time"></div>
+        <div class="field full"><label>What would you like to discuss?</label><textarea name="notes"></textarea></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Request Consultation</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

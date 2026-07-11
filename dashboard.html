@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar">
+  <h1>Dashboard</h1>
+</div>
+
+<div class="stat-row" style="margin-bottom:34px;">
+  <div class="stat-card"><div class="num">MWK {{ "{:,.0f}".format(total_sales) }}</div><div class="label">Total Sales</div></div>
+  <div class="stat-card"><div class="num">{{ total_orders }}</div><div class="label">Total Orders</div></div>
+  <div class="stat-card"><div class="num">{{ pending_deliveries }}</div><div class="label">Pending Deliveries</div></div>
+  <div class="stat-card"><div class="num">{{ product_count }}</div><div class="label">Products Listed</div></div>
+</div>
+
+<div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:34px;">
+  <div class="stat-card">
+    <div class="num">{{ pending_bookings }}</div>
+    <div class="label">Pending Booking Requests</div>
+    <a href="{{ url_for('admin_bookings') }}" class="btn-ghost" style="display:inline-block;margin-top:10px;">Review Bookings →</a>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ new_custom_requests }}</div>
+    <div class="label">New Custom Design Requests</div>
+    <a href="{{ url_for('admin_custom_requests') }}" class="btn-ghost" style="display:inline-block;margin-top:10px;">Review Requests →</a>
+  </div>
+</div>
+
+<h3 style="font-family:var(--font-display);margin-bottom:16px;">Recent Orders</h3>
+<table class="admin-table">
+  <thead><tr><th>Ref</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+    {% for o in recent_orders %}
+    <tr>
+      <td>{{ o.order_ref }}</td>
+      <td>{{ o.customer_name }}</td>
+      <td>MWK {{ "{:,.0f}".format(o.total_mwk) }}</td>
+      <td>{{ o.payment_method|replace('_',' ')|title }}</td>
+      <td><span class="badge badge-{{ 'pending' if o.status=='Pending Payment' else 'confirmed' if o.status=='Payment Confirmed' else 'shipped' if o.status in ['In Production','Shipped'] else 'delivered' if o.status=='Delivered' else 'cancelled' }}">{{ o.status }}</span></td>
+      <td>{{ o.created_at.strftime('%d %b %Y') }}</td>
+    </tr>
+    {% endfor %}
+    {% if not recent_orders %}
+    <tr><td colspan="6" style="text-align:center;color:#888;">No orders yet.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

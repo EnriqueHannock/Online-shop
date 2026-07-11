@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar"><h1>Inspiration Feed (CMS)</h1></div>
+
+<div class="admin-card" style="margin-bottom:30px;">
+  <h3 style="font-family:var(--font-display);margin-bottom:16px;">Publish New Post</h3>
+  <form method="POST" action="{{ url_for('admin_post_new') }}" enctype="multipart/form-data">
+    <div class="form-grid">
+      <div class="field full"><label>Image or Video</label><input type="file" name="media" accept="image/*,video/*" required></div>
+      <div class="field full"><label>Caption</label><textarea name="caption" placeholder="What's the story behind this look?"></textarea></div>
+      <div class="field"><label>Hashtags</label><input type="text" name="hashtags" placeholder="#NasheDesigns #MalawiFashion"></div>
+      <div class="field"><label>Link to Product (optional)</label>
+        <select name="linked_product_id">
+          <option value="">— None —</option>
+          {% for p in products %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field" style="padding-top:28px;">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;"><input type="checkbox" name="pinned" style="width:auto;"> Pin as Featured</label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-dark">Publish Post</button>
+  </form>
+</div>
+
+<h3 style="font-family:var(--font-display);margin-bottom:16px;">Published Posts</h3>
+<div class="masonry" style="columns:4 180px;">
+  {% for post in posts %}
+  <div class="masonry-item" style="background:var(--white);border:1px solid var(--gray-line-dark);">
+    {% if post.media_type == 'video' %}
+      <video src="{{ url_for('static', filename='uploads/posts/' ~ post.media) }}" muted style="height:180px;object-fit:cover;"></video>
+    {% else %}
+      <img src="{{ url_for('static', filename='uploads/posts/' ~ post.media) }}">
+    {% endif %}
+    <div class="masonry-caption">
+      <p style="font-size:12.5px;">{{ post.caption[:60] }}</p>
+      <form method="POST" action="{{ url_for('admin_post_delete', post_id=post.id) }}" onsubmit="return confirm('Delete this post?');">
+        <button type="submit" style="color:#a12727;text-decoration:underline;font-size:11.5px;margin-top:6px;">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% if not posts %}<p style="color:#888;">No posts published yet.</p>{% endif %}
+</div>
+{% endblock %}

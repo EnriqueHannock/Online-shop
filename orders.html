@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-topbar">
+  <h1>Orders</h1>
+</div>
+
+<div class="filter-chips" style="margin-bottom:20px;">
+  <a href="{{ url_for('admin_orders') }}" class="filter-chip {{ 'active' if not status_filter }}">All</a>
+  {% for s in statuses %}
+  <a href="{{ url_for('admin_orders', status=s) }}" class="filter-chip {{ 'active' if status_filter==s }}">{{ s }}</a>
+  {% endfor %}
+</div>
+
+<table class="admin-table">
+  <thead><tr><th>Ref</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Payment</th><th>Proof</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+    {% for o in orders %}
+    <tr>
+      <td>{{ o.order_ref }}</td>
+      <td>{{ o.customer_name }}</td>
+      <td>{{ o.phone }}</td>
+      <td>{{ o.items()|length }} item(s)</td>
+      <td>MWK {{ "{:,.0f}".format(o.total_mwk) }}</td>
+      <td>{{ o.payment_method|replace('_',' ')|title }}</td>
+      <td>{% if o.payment_proof %}<a href="{{ url_for('static', filename='uploads/proofs/' ~ o.payment_proof) }}" target="_blank" style="text-decoration:underline;">View</a>{% else %}—{% endif %}</td>
+      <td>
+        <form method="POST" action="{{ url_for('admin_order_status', order_id=o.id) }}">
+          <select name="status" class="status-select" onchange="this.form.submit()">
+            {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if o.status==s }}>{{ s }}</option>{% endfor %}
+          </select>
+        </form>
+      </td>
+      <td>{{ o.created_at.strftime('%d %b %Y') }}</td>
+    </tr>
+    {% endfor %}
+    {% if not orders %}
+    <tr><td colspan="9" style="text-align:center;color:#888;">No orders found.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

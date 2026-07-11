@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Request Custom Design — {{ STORE_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <span class="eyebrow">Made For You</span>
+    <h1>Request a Custom Design</h1>
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a> / Custom Design</div>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="container" style="max-width:760px;">
+    <p class="section-sub" style="margin-bottom:34px;">Tell us your vision — wedding outfit, corporate uniform, traditional wear, or something entirely your own. Our tailors will follow up with a quotation.</p>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-grid">
+        <div class="field"><label>Full Name</label><input type="text" name="name" required></div>
+        <div class="field"><label>Phone Number</label><input type="tel" name="phone" required></div>
+        <div class="field"><label>Email</label><input type="email" name="email"></div>
+        <div class="field"><label>Event Type</label>
+          <select name="event_type">
+            <option>Wedding</option><option>Corporate</option><option>Traditional Ceremony</option>
+            <option>Casual</option><option>Church / Religious</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field full"><label>Preferred Design</label><textarea name="preferred_design" placeholder="Describe the style, silhouette, colors..."></textarea></div>
+        <div class="field full"><label>Body Measurements</label><textarea name="measurements" placeholder="Bust / Waist / Hips / Height / Shoulder width, etc. (Or leave blank to arrange a fitting)"></textarea></div>
+        <div class="field"><label>Budget Range (MWK)</label><input type="text" name="budget_range" placeholder="e.g. 100,000 - 200,000"></div>
+        <div class="field"><label>Deadline</label><input type="date" name="deadline"></div>
+        <div class="field full"><label>Additional Notes</label><textarea name="notes"></textarea></div>
+        <div class="field full">
+          <label>Upload Inspiration Image</label>
+          <input type="file" name="inspiration_image" accept="image/*,video/*">
+          <p class="field-hint">A photo or screenshot of a style you love helps our tailors most.</p>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Submit Request</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}
